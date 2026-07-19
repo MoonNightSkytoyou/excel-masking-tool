@@ -190,22 +190,52 @@ export function maskCell(
       }
     }
 
-    // If Date is formatted as text (e.g. 2024-10-12)
+    // If Date is formatted as text (e.g. 2024-10-12 or 8/10/28)
     if (actualType === 'DATE') {
-      const dateVal = Date.parse(original);
-      if (!isNaN(dateVal)) {
-        const dateObj = new Date(dateVal);
-        const shift = Math.floor(rng() * (jitterDays * 2 + 1)) - jitterDays;
-        dateObj.setDate(dateObj.getDate() + shift);
-
-        // Output same format
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const d = String(dateObj.getDate()).padStart(2, '0');
-        if (original.includes('/')) {
-          return `${y}/${m}/${d}`;
+      const sepMatch = original.match(/[-/.]/);
+      if (sepMatch) {
+        const sep = sepMatch[0];
+        const parts = original.split(sep);
+        if (parts.length === 3) {
+          const shift = Math.floor(rng() * (jitterDays * 2 + 1)) - jitterDays;
+          if (parts[0].length === 4) {
+            // YYYY-MM-DD format
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10) - 1;
+            const d = parseInt(parts[2], 10);
+            const dateObj = new Date(Date.UTC(y, m, d));
+            if (!isNaN(dateObj.getTime())) {
+              dateObj.setUTCDate(dateObj.getUTCDate() + shift);
+              const ny = dateObj.getUTCFullYear();
+              const nm = String(dateObj.getUTCMonth() + 1).padStart(parts[1].length, '0');
+              const nd = String(dateObj.getUTCDate()).padStart(parts[2].length, '0');
+              return `${ny}${sep}${nm}${sep}${nd}`;
+            }
+          } else if (parts[2].length === 4 || parts[2].length === 2) {
+            // MM/DD/YYYY or DD/MM/YYYY format
+            let y = parseInt(parts[2], 10);
+            if (parts[2].length === 2) {
+              y = y < 50 ? 2000 + y : 1900 + y;
+            }
+            const p0 = parseInt(parts[0], 10);
+            const p1 = parseInt(parts[1], 10);
+            const isDayFirst = (p0 > 12);
+            const m = isDayFirst ? p1 - 1 : p0 - 1;
+            const d = isDayFirst ? p0 : p1;
+            const dateObj = new Date(Date.UTC(y, m, d));
+            if (!isNaN(dateObj.getTime())) {
+              dateObj.setUTCDate(dateObj.getUTCDate() + shift);
+              const ny = String(dateObj.getUTCFullYear()).substring(parts[2].length === 2 ? 2 : 0);
+              const nm_str = String(dateObj.getUTCMonth() + 1).padStart(isDayFirst ? parts[1].length : parts[0].length, '0');
+              const nd_str = String(dateObj.getUTCDate()).padStart(isDayFirst ? parts[0].length : parts[1].length, '0');
+              if (isDayFirst) {
+                return `${nd_str}${sep}${nm_str}${sep}${ny}`;
+              } else {
+                return `${nm_str}${sep}${nd_str}${sep}${ny}`;
+              }
+            }
+          }
         }
-        return `${y}-${m}-${d}`;
       }
     }
 
