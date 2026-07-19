@@ -2,6 +2,8 @@
 
 An objective, production-ready, pure-frontend Markdown guide explaining the operational mechanics, security architecture, and step-by-step workflows of the local Excel Masking Tool.
 
+https://moonnightskytoyou.github.io/excel-masking-tool/github-pages/
+
 ---
 
 ## 1. What is Data Masking?
