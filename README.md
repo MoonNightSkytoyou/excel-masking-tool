@@ -16,7 +16,7 @@ https://moonnightskytoyou.github.io/excel-masking-tool/github-pages/
 * 🔎 **即時比對**：內建前後數據並排對照視窗，並附帶安全審計提示，讓你在下載導出前對脫敏效果瞭如指掌。
 
 **1.Import File**
-<img width="1317" height="820" alt="Screenshot 2026-07-19 at 10 15 37 PM" src="https://github.com/user-attachments/assets/1471e95e-9601-4b2f-a923-7f5ddff59a91" />
+<img width="952" height="495" alt="Screenshot 2026-07-19 at 10 19 56 PM" src="https://github.com/user-attachments/assets/0ee9e480-2abe-418c-97f5-6b2c0d0ba281" />
 **2.Masking Strategy**
 <img width="986" height="861" alt="Screenshot 2026-07-19 at 10 16 20 PM" src="https://github.com/user-attachments/assets/3eee6112-9bc3-43bb-81f1-d8d9072f5b99" />
 **3.Audit & Preview**
