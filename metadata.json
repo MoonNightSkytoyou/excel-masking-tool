@@ -1,0 +1,6 @@
+{
+  "name": "Excel Masking Tool",
+  "description": "A pure client-side Excel masking and anonymization tool that runs entirely in your browser. Perfect for static hosting such as GitHub Pages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
