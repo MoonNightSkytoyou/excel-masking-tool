@@ -4,6 +4,24 @@ An objective, production-ready, pure-frontend Markdown guide explaining the oper
 
 https://moonnightskytoyou.github.io/excel-masking-tool/github-pages/
 
+本工具是一款**純前端、零上傳**的輕量級 Excel/CSV 線上數據脫敏與隱私保護工具。
+
+所有數據解析、自動類型識別（姓名、郵箱、金額等）與脫敏計算，皆透過瀏覽器的 `FileReader` 與 `SheetJS` 於**本地記憶體內獨立完成**，確保敏感資料絕對不會流向任何外部伺服器，完美符合企業資料隱私與合規審查標準。
+
+
+* 🔒 **絕對安全**：100% 瀏覽器本地執行，無後端、無資料庫、零網絡上傳，支持斷網離線操作。
+* 🧠 **智能識別**：自動分析表頭與內容格式，精準配對姓名、地址、日期、敏感數值等欄位型態。
+* 🧮 **8 大算子**：支援智能替換（PSEUDO）、完全抑制（REDACT）、哈希去標識（HASH）、數值抖動（JITTER）等豐富的數學與動態模糊演算法。
+* 📈 **公式保留**：脫敏時自動保留 Excel 原有公式結構，僅替換底層引用數值，確保下載後的活頁簿功能完整、運算如常。
+* 🔎 **即時比對**：內建前後數據並排對照視窗，並附帶安全審計提示，讓你在下載導出前對脫敏效果瞭如指掌。
+
+**1.Import File**
+<img width="1317" height="820" alt="Screenshot 2026-07-19 at 10 15 37 PM" src="https://github.com/user-attachments/assets/1471e95e-9601-4b2f-a923-7f5ddff59a91" />
+**2.Masking Strategy**
+<img width="986" height="861" alt="Screenshot 2026-07-19 at 10 16 20 PM" src="https://github.com/user-attachments/assets/3eee6112-9bc3-43bb-81f1-d8d9072f5b99" />
+**3.Audit & Preview**
+<img width="962" height="686" alt="Screenshot 2026-07-19 at 10 18 32 PM" src="https://github.com/user-attachments/assets/e02f825f-5ce8-452e-8e64-cb95c79c036e" />
+
 ---
 
 ## 1. What is Data Masking?
