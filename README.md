@@ -128,12 +128,16 @@ Completely purges the source data vector, populating the target string uniformly
 
 ### 5.3 `HASH` (Anonymization via Digesting)
 Computes a standard SHA-256 digest of the combined input values:
-$$	ext{Output} = 	ext{SHA-256}(	ext{Raw Value} + 	ext{Salt})$$
+
+$$\text{Output} = \text{SHA-256}(\text{Raw Value} + \text{Salt})$$
+
 Produces a fixed-length hexadecimal hash. This ensures irreversible records while allowing data analysts to perform deterministic data joins and exact-match lookups across separate datasets.
 
 ### 5.4 `JITTER` (Numerical Noise Injection)
 Introduces controlled random variance to continuous variables. It perturbs numerical targets within a bounded proportional window:
-$$	ext{Output} = 	ext{Raw Value} 	imes (1 + \epsilon), \quad \epsilon \in [-N\%, +N\%]$$
+
+$$\text{Output} = \text{Raw Value} \times (1 + \epsilon), \quad \epsilon \in [-N\%, +N\%]$$
+
 Preserves broad macroscopic statistical distributions while fuzzing discrete transaction items.
 
 ### 5.5 `BINNING` (Interval Aggregation)
