@@ -4,7 +4,7 @@ An objective, production-ready, pure-frontend Markdown guide explaining the oper
 
 https://moonnightskytoyou.github.io/excel-masking-tool/github-pages/
 
-本工具是一款**純前端、零上傳**的輕量級 Excel/CSV 線上數據脫敏與隱私保護工具。
+本工具是一款**純前端、零上傳**的輕量級 Excel/CSV 數據脫敏與隱私保護工具。
 
 所有數據解析、自動類型識別（姓名、郵箱、金額等）與脫敏計算，皆透過瀏覽器的 `FileReader` 與 `SheetJS` 於**本地記憶體內獨立完成**，確保敏感資料絕對不會流向任何外部伺服器，完美符合企業資料隱私與合規審查標準。
 
