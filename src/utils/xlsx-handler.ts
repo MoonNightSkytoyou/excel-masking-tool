@@ -8,7 +8,7 @@ import { CellModel, ColumnConfig, SheetData, MaskingConfig, EntityType, Operator
 import { detectCellType, detectTypeFromHeader } from './detector';
 import { maskCell } from './masker';
 
-const DEFAULT_GLOBAL_OPERATORS: Record<EntityType, Operator> = {
+export const DEFAULT_GLOBAL_OPERATORS: Record<EntityType, Operator> = {
   NAME: 'PSEUDO',
   PHONE: 'MASK',
   EMAIL: 'REDACT',
@@ -41,6 +41,27 @@ export function colIndexToLabel(col: number): string {
 }
 
 /**
+ * Check file magic bytes to validate Excel/CSV format.
+ */
+function validateMagicBytes(data: ArrayBuffer): void {
+  const arr = new Uint8Array(data);
+  if (arr.length < 4) return; // Too small to validate
+
+  // xlsx (ZIP format): PK\x03\x04
+  const isZip = arr[0] === 0x50 && arr[1] === 0x4b && arr[2] === 0x03 && arr[3] === 0x04;
+  // xls (OLE2): \xD0\xCF\x11\xE0
+  const isOle2 = arr[0] === 0xd0 && arr[1] === 0xcf && arr[2] === 0x11 && arr[3] === 0xe0;
+  // CSV/plain text: printable ASCII or UTF-8 BOM
+  const isText = arr[0] === 0xef || arr[0] === 0xff || arr[0] === 0xfe || arr[0] === 0x2e ||
+    (arr[0] >= 0x20 && arr[0] <= 0x7e) ||
+    (arr[0] >= 0x80);
+
+  if (!isZip && !isOle2 && !isText) {
+    throw new Error('Invalid file format: magic bytes indicate unsupported file type');
+  }
+}
+
+/**
  * Parse an Excel file into core data structures.
  */
 export async function parseExcelFile(file: File): Promise<SheetData[]> {
@@ -51,6 +72,11 @@ export async function parseExcelFile(file: File): Promise<SheetData[]> {
         const data = e.target?.result;
         if (!data) {
           throw new Error('Could not read file data');
+        }
+
+        // Validate magic bytes for binary data
+        if (data instanceof ArrayBuffer) {
+          validateMagicBytes(data);
         }
 
         const workbook = XLSX.read(data, {
@@ -262,9 +288,12 @@ export function exportMaskedExcel(
   }
 
   const downloadLink = document.createElement('a');
-  downloadLink.href = URL.createObjectURL(dataBlob);
+  const blobUrl = URL.createObjectURL(dataBlob);
+  downloadLink.href = blobUrl;
   downloadLink.download = maskedName;
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);
+  // Revoke the blob URL after a short delay to avoid memory leaks
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 }
