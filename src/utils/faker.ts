@@ -352,7 +352,7 @@ export function sha256Hash(str: string): string {
 
   const asciiLength = bytes.length;
   let wordsLength = ((asciiLength + 8) >> 6) + 1;
-  const words = new Int32Array(wordsLength * 16);
+  const words = new Uint32Array(wordsLength * 16);
   
   for (let i = 0; i < asciiLength; i++) {
     words[i >> 2] |= (bytes[i] & 0xff) << (24 - (i % 4) * 8);

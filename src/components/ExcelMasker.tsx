@@ -297,6 +297,7 @@ export default function ExcelMasker() {
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [downloading, setDownloading] = useState(false);
 
   const currentSheet = useMemo(() => {
     if (session.sheets.length === 0) return null;
@@ -522,50 +523,88 @@ export default function ExcelMasker() {
     }));
   };
 
-  // Render masked text on preview side
-  const getMaskedPreviewValue = (cell: CellModel) => {
-    if (!currentSheet) return cell.original;
-    if (cell.row === 0) return cell.original; // header row remains unmasked in Excel output
+  // Memoized masked preview values for the current sheet
+  const maskedPreviewMap = useMemo(() => {
+    if (!currentSheet || session.state !== 'MASKED') return new Map<string, string>();
 
+    const map = new Map<string, string>();
     const sheetOverrides = session.config.columnOverrides[currentSheet.name] || {};
-    const colConfig = sheetOverrides[cell.col] || {
-      selectedType: currentSheet.columns[cell.col]?.selectedType || 'NONE',
-      selectedOperator: currentSheet.columns[cell.col]?.selectedOperator || 'NONE',
-    };
 
-    let appliedOperator = colConfig.selectedOperator;
-    let selectedType = colConfig.selectedType;
+    for (const cell of currentSheet.cells) {
+      if (cell.row === 0) {
+        map.set(cell.address, cell.original); // header row
+        continue;
+      }
 
-    if (colConfig.selectedType === 'NONE') {
-      const detected = cell.detectedType;
-      if (detected) {
-        appliedOperator = session.config.globalOperators[detected] || 'NONE';
-        selectedType = detected;
+      const colConfig = sheetOverrides[cell.col] || {
+        selectedType: currentSheet.columns[cell.col]?.selectedType || 'NONE',
+        selectedOperator: currentSheet.columns[cell.col]?.selectedOperator || 'NONE',
+      };
+
+      let appliedOperator = colConfig.selectedOperator;
+      let selectedType = colConfig.selectedType;
+
+      if (colConfig.selectedType === 'NONE') {
+        const detected = cell.detectedType;
+        if (detected) {
+          appliedOperator = session.config.globalOperators[detected] || 'NONE';
+          selectedType = detected;
+        } else {
+          appliedOperator = 'NONE';
+        }
+      }
+
+      if (appliedOperator === 'NONE') {
+        map.set(cell.address, cell.original);
       } else {
-        appliedOperator = 'NONE';
+        const masked = maskCell(
+          cell,
+          appliedOperator,
+          selectedType !== 'NONE' ? selectedType : cell.detectedType,
+          session.config.locale,
+          session.config.numericJitterPercent,
+          session.config.dateJitterDays,
+          session.config.hashSalt,
+          currentSheet.cells,
+          session.config.formulaBaseKValues,
+          session.config.formulaBaseIndexPercent,
+          session.config.binningLevels
+        );
+        map.set(cell.address, masked);
       }
     }
 
-    if (appliedOperator === 'NONE') return cell.original;
+    return map;
+  }, [
+    currentSheet,
+    session.state,
+    session.config.columnOverrides,
+    session.config.globalOperators,
+    session.config.locale,
+    session.config.numericJitterPercent,
+    session.config.dateJitterDays,
+    session.config.hashSalt,
+    session.config.formulaBaseKValues,
+    session.config.formulaBaseIndexPercent,
+    session.config.binningLevels,
+  ]);
 
-    return maskCell(
-      cell,
-      appliedOperator,
-      selectedType !== 'NONE' ? selectedType : cell.detectedType,
-      session.config.locale,
-      session.config.numericJitterPercent,
-      session.config.dateJitterDays,
-      session.config.hashSalt,
-      currentSheet.cells,
-      session.config.formulaBaseKValues,
-      session.config.formulaBaseIndexPercent,
-      session.config.binningLevels
-    );
+  // Lookup masked value from the memoized map
+  const getMaskedPreviewValue = (cell: CellModel): string => {
+    return maskedPreviewMap.get(cell.address) ?? cell.original;
   };
 
   // Perform XLSX generation & direct browser trigger
   const handleDownload = () => {
-    exportMaskedExcel(session.sheets, session.config, session.fileName);
+    setDownloading(true);
+    // Use setTimeout to allow React to render the loading state before the blocking export
+    setTimeout(() => {
+      try {
+        exportMaskedExcel(session.sheets, session.config, session.fileName);
+      } finally {
+        setDownloading(false);
+      }
+    }, 50);
   };
 
   const handleDownloadGitHubPagesVersion = () => {
@@ -1280,11 +1319,12 @@ export default function ExcelMasker() {
                     </button>
                     <button
                       onClick={handleDownload}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm hover:shadow transition-all cursor-pointer"
+                      disabled={downloading}
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white font-medium px-6 py-2.5 rounded-lg shadow-sm hover:shadow transition-all cursor-pointer"
                       id="em-btn-download-file"
                     >
-                      <Download className="w-4 h-4" />
-                      <span>{t.downloadButton}</span>
+                      {downloading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                      <span>{downloading ? (lang === 'zh' ? '匯出中...' : 'Exporting...') : t.downloadButton}</span>
                     </button>
                   </div>
                 </div>

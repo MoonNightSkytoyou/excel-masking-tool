@@ -31,10 +31,11 @@ function getDefaultOperatorForType(type: EntityType | undefined): Operator {
  */
 export function colIndexToLabel(col: number): string {
   let label = '';
-  let temp = col;
-  while (temp >= 0) {
+  let temp = col + 1; // Convert to 1-based
+  while (temp > 0) {
+    temp--;
     label = String.fromCharCode((temp % 26) + 65) + label;
-    temp = Math.floor(temp / 26) - 1;
+    temp = Math.floor(temp / 26);
   }
   return label;
 }
