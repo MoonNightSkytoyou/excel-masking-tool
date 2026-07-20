@@ -25,21 +25,8 @@ import {
   Database
 } from 'lucide-react';
 import { CellModel, ColumnConfig, SheetData, MaskingConfig, EntityType, Operator, SessionContext } from '../types';
-import { parseExcelFile, exportMaskedExcel } from '../utils/xlsx-handler';
+import { parseExcelFile, exportMaskedExcel, DEFAULT_GLOBAL_OPERATORS } from '../utils/xlsx-handler';
 import { maskCell } from '../utils/masker';
-
-const DEFAULT_GLOBAL_OPERATORS: Record<EntityType, Operator> = {
-  NAME: 'PSEUDO',
-  PHONE: 'MASK',
-  EMAIL: 'REDACT',
-  ADDRESS: 'PSEUDO',
-  DATE: 'JITTER',
-  CREDIT_CARD: 'MASK',
-  SENSITIVE_NUMERIC: 'INDEX',
-  AMOUNT: 'BINNING',
-  FORMULA_BASE: 'SCALE',
-  COMPANY: 'MASK',
-};
 
 const ENTITY_COLORS: Record<EntityType, { color: string; bg: string }> = {
   NAME: { color: 'text-blue-700 border-blue-200', bg: 'bg-blue-50' },
@@ -748,21 +735,21 @@ export default function ExcelMasker() {
                       <Shield className="w-4 h-4" />
                     </div>
                     <h3 className="text-xs font-semibold text-gray-700">{t.sandboxTitle}</h3>
-                    <p className="text-xxs text-gray-400">{t.sandboxDesc}</p>
+                    <p className="text-xs text-gray-400">{t.sandboxDesc}</p>
                   </div>
                   <div className="space-y-2">
                     <div className="mx-auto w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
                       <RefreshCw className="w-4 h-4" />
                     </div>
                     <h3 className="text-xs font-semibold text-gray-700">{t.formulaTitle}</h3>
-                    <p className="text-xxs text-gray-400">{t.formulaDesc}</p>
+                    <p className="text-xs text-gray-400">{t.formulaDesc}</p>
                   </div>
                   <div className="space-y-2">
                     <div className="mx-auto w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
                       <Sparkles className="w-4 h-4" />
                     </div>
                     <h3 className="text-xs font-semibold text-gray-700">{t.fakeTitle}</h3>
-                    <p className="text-xxs text-gray-400">{t.fakeDesc}</p>
+                    <p className="text-xs text-gray-400">{t.fakeDesc}</p>
                   </div>
                 </div>
               </motion.div>
@@ -828,7 +815,7 @@ export default function ExcelMasker() {
                         <option value="zh_HK">{t.locales.zh_HK}</option>
                         <option value="en">{t.locales.en}</option>
                       </select>
-                      <p className="text-xxs text-gray-400 leading-relaxed">{t.localeDesc}</p>
+                      <p className="text-xs text-gray-400 leading-relaxed">{t.localeDesc}</p>
                     </div>
 
                     {/* Jitter configs */}
@@ -839,7 +826,7 @@ export default function ExcelMasker() {
                       </label>
                       
                       <div className="space-y-1.5">
-                        <div className="flex justify-between text-xxs font-mono text-gray-500">
+                        <div className="flex justify-between text-xs font-mono text-gray-500">
                           <span>{t.numericJitterLabel}</span>
                           <span className="text-indigo-600 font-semibold">±{session.config.numericJitterPercent}%</span>
                         </div>
@@ -855,7 +842,7 @@ export default function ExcelMasker() {
                       </div>
 
                       <div className="space-y-1.5">
-                        <div className="flex justify-between text-xxs font-mono text-gray-500">
+                        <div className="flex justify-between text-xs font-mono text-gray-500">
                           <span>{t.dateJitterLabel}</span>
                           <span className="text-indigo-600 font-semibold">±{session.config.dateJitterDays} {t.days}</span>
                         </div>
@@ -885,7 +872,7 @@ export default function ExcelMasker() {
                               id={`em-global-op-${type}`}
                               value={session.config.globalOperators[type]}
                               onChange={(e) => handleGlobalOperatorChange(type, e.target.value as Operator)}
-                              className="text-xxs bg-white border border-gray-200 rounded px-1.5 py-1 text-gray-600 focus:outline-none"
+                              className="text-xs bg-white border border-gray-200 rounded px-1.5 py-1 text-gray-600 focus:outline-none"
                             >
                               {(Object.keys(t.opLabels) as Operator[]).map((op) => (
                                 <option key={op} value={op}>{getOperatorLabel(op)}</option>
@@ -902,7 +889,7 @@ export default function ExcelMasker() {
                         <label className="text-xs font-semibold text-gray-600 block">{t.saltLabel}</label>
                         <button
                           onClick={handleRotateSalt}
-                          className="text-xxs text-indigo-600 hover:underline flex items-center gap-0.5"
+                          className="text-xs text-indigo-600 hover:underline flex items-center gap-0.5"
                           id="em-btn-rotate-salt"
                         >
                           <RefreshCw className="w-3 h-3" />
@@ -974,7 +961,7 @@ export default function ExcelMasker() {
                                   </td>
                                   <td className="py-3.5 px-4">
                                     {col.detectedType ? (
-                                      <span className={`inline-flex px-2 py-1 rounded text-xxs font-semibold border ${ENTITY_COLORS[col.detectedType].color} ${ENTITY_COLORS[col.detectedType].bg}`}>
+                                      <span className={`inline-flex px-2 py-1 rounded text-xs font-semibold border ${ENTITY_COLORS[col.detectedType].color} ${ENTITY_COLORS[col.detectedType].bg}`}>
                                         {getEntityLabel(col.detectedType)}
                                       </span>
                                     ) : (
@@ -1032,7 +1019,7 @@ export default function ExcelMasker() {
 
                                         if (override.selectedOperator === 'SCALE') {
                                           return (
-                                            <div className="flex items-center gap-1.5 text-xxs text-gray-500 bg-amber-50 p-1.5 rounded border border-amber-100 w-fit">
+                                            <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-amber-50 p-1.5 rounded border border-amber-100 w-fit">
                                               <span className="font-semibold text-amber-700 font-mono">{kLabel} =</span>
                                               <input
                                                 type="number"
@@ -1047,7 +1034,7 @@ export default function ExcelMasker() {
 
                                         if (override.selectedOperator === 'INDEX') {
                                           return (
-                                            <div className="flex items-center gap-1 text-xxs text-gray-500 bg-indigo-50 p-1.5 rounded border border-indigo-100 w-fit">
+                                            <div className="flex items-center gap-1 text-xs text-gray-500 bg-indigo-50 p-1.5 rounded border border-indigo-100 w-fit">
                                               <span className="font-semibold text-indigo-700">{lang === 'zh' ? '基數' : 'Base'} =</span>
                                               <input
                                                 type="number"
@@ -1067,7 +1054,7 @@ export default function ExcelMasker() {
                                             ? session.config.binningLevels[bKey]
                                             : 5;
                                           return (
-                                            <div className="flex items-center gap-1.5 text-xxs text-gray-500 bg-emerald-50 p-1.5 rounded border border-emerald-100 w-fit">
+                                            <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-emerald-50 p-1.5 rounded border border-emerald-100 w-fit">
                                               <span className="font-semibold text-emerald-700">{t.binningLevelsLabel} =</span>
                                               <input
                                                 type="number"
@@ -1204,7 +1191,7 @@ export default function ExcelMasker() {
                                 </td>
                                 <td className="py-3 px-6 text-gray-600 font-mono select-all">
                                   {cell.formula ? (
-                                    <span className="text-purple-600 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded text-xxs font-semibold">
+                                    <span className="text-purple-600 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded text-xs font-semibold">
                                       {t.fx}: {cell.formula}
                                     </span>
                                   ) : (
@@ -1222,19 +1209,19 @@ export default function ExcelMasker() {
                                 </td>
                                 <td className="py-3 px-4">
                                   {cell.row === 0 ? (
-                                    <span className="text-gray-400 text-xxs font-semibold">{t.headerRow}</span>
+                                    <span className="text-gray-400 text-xs font-semibold">{t.headerRow}</span>
                                   ) : cell.formula ? (
-                                    <span className="text-purple-700 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded text-xxs font-semibold flex items-center gap-1 w-max">
+                                    <span className="text-purple-700 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded text-xs font-semibold flex items-center gap-1 w-max">
                                       <RefreshCw className="w-2.5 h-2.5 animate-spin" />
                                       {t.formulaRecalc}
                                     </span>
                                   ) : isChanged ? (
-                                    <span className="text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded text-xxs font-semibold flex items-center gap-1 w-max">
+                                    <span className="text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded text-xs font-semibold flex items-center gap-1 w-max">
                                       <Sparkles className="w-2.5 h-2.5 text-emerald-500" />
                                       {t.maskedSuccess}
                                     </span>
                                   ) : (
-                                    <span className="text-gray-400 text-xxs">{t.noChange}</span>
+                                    <span className="text-gray-400 text-xs">{t.noChange}</span>
                                   )}
                                 </td>
                               </tr>
@@ -1252,7 +1239,7 @@ export default function ExcelMasker() {
                   </div>
                   <div className="bg-gray-50 border-t border-gray-100 px-6 py-3 flex justify-between items-center text-xs text-gray-500 font-mono">
                     <span>{t.viewTopRows} ({t.totalCells.replace('{count}', String(currentSheet.cells.length))})</span>
-                    <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded font-semibold text-xxs">
+                    <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded font-semibold text-xs">
                       <Eye className="w-3.5 h-3.5" />
                       {t.allLocalWarning}
                     </span>
