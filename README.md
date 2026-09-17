@@ -15,6 +15,8 @@ https://moonnightskytoyou.github.io/excel-masking-tool/github-pages/
 * 📈 **公式保留**：脫敏時自動保留 Excel 原有公式結構，僅替換底層引用數值，確保下載後的活頁簿功能完整、運算如常。
 * 🔎 **即時比對**：內建前後數據並排對照視窗，並附帶安全審計提示，讓你在下載導出前對脫敏效果瞭如指掌。
 
+https://github.com/user-attachments/assets/5432f4f5-63f1-4b00-980a-6659282755a0
+
 **1.Import File**
 <img width="952" height="495" alt="Screenshot 2026-07-19 at 10 19 56 PM" src="https://github.com/user-attachments/assets/0ee9e480-2abe-418c-97f5-6b2c0d0ba281" />
 **2.Masking Strategy**
